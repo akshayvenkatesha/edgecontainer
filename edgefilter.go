@@ -14,7 +14,7 @@ func main() {
 	createFolder("/cloud")
 	createFolder("/local")
 
-	cmd := exec.Command("sh", "-c", "mount -t cifs //192.168.1.9/share /source -o username=hcstestuser,password=StorSim1 ")
+	cmd := exec.Command("sh", "-c", "mount -t cifs //10.94.160.158/share /source -o username=hcstestuser,password=StorSim1 ")
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Fatal(err)
