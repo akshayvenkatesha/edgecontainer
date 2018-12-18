@@ -28,16 +28,22 @@ func initFlags() {
 	flag.StringVar(&sharePassword, "sharePassword", "Password", "Share password.")
 }
 
+func printFlags() {
+	fmt.Println()
+	fmt.Println("Input Details:")
+	fmt.Println("shareIp:" + shareIp)
+	fmt.Println("sourceShare:" + sourceShare)
+	fmt.Println("localShare:" + localShare)
+	fmt.Println("cloudshare:" + cloudShare)
+	fmt.Println("shareUserName:" + shareUserName)
+	fmt.Println("sharePassword:" + sharePassword)
+	fmt.Println()
+}
+
 func main() {
 	initFlags()
 	flag.Parse()
-	fmt.Println(shareIp)
-	fmt.Println(sourceShare)
-	fmt.Println(localShare)
-	fmt.Println(cloudShare)
-	fmt.Println(shareUserName)
-	fmt.Println(sharePassword)
-
+	printFlags()
 	createInitFolders()
 	mountShares()
 	unMountShares()
@@ -58,8 +64,8 @@ func createFolder(folderPath string) {
 
 func mountShares() {
 	mountShare(sourceShare, sourceShareMountPath)
-	// mountShare(localShare, localShareMountPath)
-	// mountShare(cloudShare, cloudShareMountPath)
+	mountShare(localShare, localShareMountPath)
+	mountShare(cloudShare, cloudShareMountPath)
 }
 
 func mountShare(sharePath string, mountPath string) {
@@ -74,8 +80,8 @@ func mountShare(sharePath string, mountPath string) {
 
 func unMountShares() {
 	unMountShare(sourceShareMountPath)
-	// mountShare(localShareMountPath)
-	// mountShare(cloudShareMountPath)
+	unMountShare(localShareMountPath)
+	unMountShare(cloudShareMountPath)
 }
 
 func unMountShare(mountPath string) {
