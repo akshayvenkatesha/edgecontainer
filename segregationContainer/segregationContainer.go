@@ -7,7 +7,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
+	"strings"
 )
 
 var shareIp string
@@ -49,7 +51,7 @@ func main() {
 	createInitFolders()
 	mountShares()
 	businessLogin()
-	unMountShares()
+	defer unMountShares()
 }
 
 func createInitFolders() {
@@ -102,24 +104,36 @@ func businessLogin() {
 	}
 }
 
-func copyFile(path string, shareToCopy string) {
-	in, err := os.Open(path)
+func copyFile(sourceFile string, shareToCopy string) {
+	in, err := os.Open(sourceFile)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 	defer in.Close()
 
+	dst := path.Join(shareToCopy, strings.Replace(sourceFile, sourceShareMountPath, "", 1))
+
 	out, err := os.Create(dst)
 	if err != nil {
-		return err
+		log.Fatal(err)
+		return
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, in)
 	if err != nil {
-		return err
+		log.Fatal(err)
+		return
 	}
-	return out.Close()
+	defer out.Close()
+	log.Printf("File %s copied sussessfully to %s", sourceFile, dst)
+
+	err = os.Remove(sourceFile)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 }
 
 func decideTheShare(info os.FileInfo) string {
