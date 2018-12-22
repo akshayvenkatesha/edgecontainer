@@ -1,0 +1,1 @@
+sudo go run segregationContainer.go -shareIp 192.168.1.11 -sourceShare /share -localShare /local -cloudShare /cloud -shareUserName hcstestuser -sharePassword StorSim1
