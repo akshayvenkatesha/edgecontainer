@@ -3,9 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 var shareIp string
@@ -46,6 +48,7 @@ func main() {
 	printFlags()
 	createInitFolders()
 	mountShares()
+	businessLogin()
 	unMountShares()
 }
 
@@ -66,6 +69,7 @@ func mountShares() {
 	mountShare(sourceShare, sourceShareMountPath)
 	mountShare(localShare, localShareMountPath)
 	mountShare(cloudShare, cloudShareMountPath)
+	fmt.Println()
 }
 
 func mountShare(sharePath string, mountPath string) {
@@ -78,7 +82,55 @@ func mountShare(sharePath string, mountPath string) {
 	}
 }
 
+func businessLogin() {
+	err := filepath.Walk(sourceShareMountPath,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() == true {
+				return nil
+			}
+			shareToCopy := decideTheShare(info)
+			fmt.Println(path, info.Size())
+			fmt.Println(path, shareToCopy)
+			copyFile(path, shareToCopy)
+			return nil
+		})
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func copyFile(path string, shareToCopy string) {
+	in, err := os.Open(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+	return out.Close()
+}
+
+func decideTheShare(info os.FileInfo) string {
+	if info.Size() > 100000 {
+		return cloudShareMountPath
+	}
+	return localShareMountPath
+}
+
 func unMountShares() {
+	fmt.Println()
 	unMountShare(sourceShareMountPath)
 	unMountShare(localShareMountPath)
 	unMountShare(cloudShareMountPath)
